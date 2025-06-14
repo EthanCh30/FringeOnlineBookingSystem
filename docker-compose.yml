@@ -1,0 +1,84 @@
+version: '3.9'
+
+services:
+  gateway:
+    image: nginx:alpine
+    container_name: gateway
+    ports:
+      - "90:90"
+    volumes:
+      - ./docker/nginx/booking.conf:/etc/nginx/conf.d/booking.conf
+    networks:
+      - mynet
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: backend
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - mynet
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root123
+      - DB_DATABASE=fringe2025bookingdb_dev
+      - CACHE_HOST=redis
+      - CACHE_PORT=6379
+      - JWT_SECRET=your_jwt_secret
+
+  frontend-admin:
+    build: ./frontend-admin
+    container_name: admin-ui
+    restart: always
+    networks:
+      - mynet
+    ports:
+      - "8081:80"
+
+  frontend-public:
+    build: ./frontend-public
+    container_name: public-ui
+    restart: always
+    networks:
+      - mynet
+    ports:
+      - "8082:80"
+    environment:
+      - VITE_API_BASE_URL=http://gateway/api
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: fringe2025bookingdb_dev
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mynet
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge
+
+volumes:
+  mysql_data:

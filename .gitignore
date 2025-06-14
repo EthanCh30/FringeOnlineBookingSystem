@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# env files
+.env
+
+# system files
+.DS_Store
+.log
+Thumbs.db
+node_modules
+backend/logs/api-requests.log
+backend/logs/error.log
+backend/logs/migration.log
+backend/logs/api-errors.log
+backend/logs/api-requests.log
+backend/logs/api-errors.log
